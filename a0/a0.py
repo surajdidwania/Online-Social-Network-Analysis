@@ -37,10 +37,10 @@ import sys
 import time
 from TwitterAPI import TwitterAPI
 
-consumer_key = 'fixme'
-consumer_secret = 'fixme'
-access_token = 'fixme'
-access_token_secret = 'fixme'
+consumer_key = '8VEfsBxDFtmN0xHYM0saAf7Dq'
+consumer_secret = 'Imtc63LZhSs0UvkMBqxUfLnHJEInDjhevY8ojFPo0y9klgnGFX'
+access_token = '148849891-90859yOIGG33fmEdhhlHtzMK2EPOz4EoacXEj53s'
+access_token_secret = 'SnrSM5FQnpLpgtJh0q7CfZxvZ9RprC0afXGq74fEvekXU'
 
 
 # This method is done for you.
@@ -66,8 +66,11 @@ def read_screen_names(filename):
     >>> read_screen_names('candidates.txt')
     ['DrJillStein', 'GovGaryJohnson', 'HillaryClinton', 'realDonaldTrump']
     """
-    ###TODO
-    pass
+    screen_names = []
+    File = open(filename,"r") 
+    screen_names = File.read().splitlines()
+    File.close()
+    return screen_names 
 
 
 # I've provided the method below to handle Twitter's rate limiting.
@@ -112,8 +115,9 @@ def get_users(twitter, screen_names):
     >>> [u['id'] for u in users]
     [6253282, 783214]
     """
-    ###TODO
-    pass
+    request = robust_request(twitter,'users/lookup', {'screen_name':screen_names},max_tries=5) 
+    user_object = [r for r in request]
+    return user_object
 
 
 def get_friends(twitter, screen_name):
@@ -137,8 +141,10 @@ def get_friends(twitter, screen_name):
     >>> get_friends(twitter, 'aronwc')[:5]
     [695023, 1697081, 8381682, 10204352, 11669522]
     """
-    ###TODO
-    pass
+    request = robust_request(twitter,'friends/ids', {'screen_name':screen_name,'count':5000,'cursor':-1},max_tries=5)
+    person_follows = [r for r in request]
+    person_follows.sort()
+    return person_follows
 
 
 def add_all_friends(twitter, users):
@@ -159,8 +165,9 @@ def add_all_friends(twitter, users):
     >>> users[0]['friends'][:5]
     [695023, 1697081, 8381682, 10204352, 11669522]
     """
-    ###TODO
-    pass
+    for i in range(len(users)):
+        followers = get_friends(twitter,users[i]['screen_name'])
+        users[i]['friends']=followers
 
 
 def print_num_friends(users):
@@ -171,8 +178,10 @@ def print_num_friends(users):
     Returns:
         Nothing
     """
-    ###TODO
-    pass
+    for i in range(len(users)):
+        counts = Counter()
+        counts.update(users[i]['friends'])
+        print ('%s %d' %(users[i]['screen_name'],len(counts)))
 
 
 def count_friends(users):
@@ -188,8 +197,11 @@ def count_friends(users):
     >>> c.most_common()
     [(2, 3), (3, 2), (1, 1)]
     """
-    ###TODO
-    pass
+    count = Counter()
+    for i in range(len(users)):
+        count.update(users[i]['friends'])
+    return count
+
 
 
 def friend_overlap(users):
@@ -213,8 +225,17 @@ def friend_overlap(users):
     ...     ])
     [('a', 'c', 3), ('a', 'b', 2), ('b', 'c', 2)]
     """
-    ###TODO
-    pass
+    friends_overlap = []
+    list_of_users = [(users[person1], users[person2]) for person1 in range(len(users)) for person2 in range(person1+1,len(users))]
+    for pairs in (list_of_users):
+        pair_tuple = ()
+        common = set(pairs[0]['friends']).intersection(pairs[1]['friends'])
+        overlap = pairs[0]['screen_name'] + ',' + pairs[1]['screen_name'] + ','
+        pair_tuple = pair_tuple + (pairs[0]['screen_name'],)
+        pair_tuple = pair_tuple + (pairs[1]['screen_name'],)
+        pair_tuple = pair_tuple + (len(common),)
+        friends_overlap.append(pair_tuple)
+    return sorted(friends_overlap,key=lambda common: (-common[2]))
 
 
 def followed_by_hillary_and_donald(users, twitter):
@@ -231,8 +252,10 @@ def followed_by_hillary_and_donald(users, twitter):
         A string containing the single Twitter screen_name of the user
         that is followed by both Hillary Clinton and Donald Trump.
     """
-    ###TODO
-    pass
+    user_id = set(users[2]['friends']) & set(users[3]['friends'])
+    request = robust_request(twitter,'users/lookup', {'user_id':user_id},max_tries=5) 
+    for r in request:
+        return r['screen_name']
 
 
 def create_graph(users, friend_counts):
@@ -250,8 +273,17 @@ def create_graph(users, friend_counts):
     Returns:
       A networkx Graph
     """
-    ###TODO
-    pass
+    import warnings
+    warnings.filterwarnings("ignore")
+    graph = nx.Graph()
+    screen_names = [user['screen_name'] for user in users]
+    users_friend = Counter({j:k for j,k in friend_counts.items() if k>1})
+    for i in range(len(screen_names)):
+        graph.add_nodes_from(screen_names)
+        for key in users_friend:
+            if key in users[i]['friends']:
+                graph.add_edge(screen_names[i],key)
+    return graph
 
 
 def draw_network(graph, users, filename):
@@ -264,8 +296,16 @@ def draw_network(graph, users, filename):
     Your figure does not have to look exactly the same as mine, but try to
     make it look presentable.
     """
-    ###TODO
-    pass
+    lab={}
+    screen_names = [user['screen_name'] for user in users]
+    for nodes in graph.nodes():
+        if nodes in screen_names:
+            lab[nodes] = nodes
+        else:
+            lab[nodes] = ""
+    nx.draw_networkx(graph,arrows=False,labels = lab,node_color = 'g',edge_color = 'r',width = 0.8,node_size = 20)
+    plt.axis('off') 
+    plt.savefig(filename)
 
 
 def main():
