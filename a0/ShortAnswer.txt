@@ -9,7 +9,11 @@ Trump.
 
 How is this approach misleading? How might you fix it?
 
-
+Answer) Although it seems that Jill Stein and Gary Johnson are more similar just because they have
+more friends overlap on twitter but it does not say they are similar choices.
+It might be possible that the friends they follow are very common or generic in real world. These common 
+Friends are followed by many other.
+In order to fix this we need to remove such common friends which are very generic and recalculate the result.
 
 
 
@@ -24,10 +28,10 @@ who are rivals? Do some web searches to see if you can find out more
 information.
 
 
-
-
-
-
+Answer) Friends followed by both Hillary Clinton and Donald Trump is WhiteHouse. It is common between them
+Because of the competition between them for common topic. 
+They both needs to get update in the form of notification, tweets 
+From common topic.
 
 
 
@@ -39,8 +43,13 @@ information.
 Johnson follows over 3K accounts, while Donald Trump follows less than
 50). Why do you think this is? How might that affect our analysis?
 
+Answer) Accounts which a candidate follows does say something about your character.
+Candidate who follows very less number of friends might be because candidate only wants information or reads about his close ones or chosen topic.
+And does not read about other opinions outside its near by person or topic. The tweets are focussed to some extent on his followers not who he follow.
+Candidate who follows many accounts shows that he is very focussed on taking opinions about other people or lots of people to notice them.
 
-
+Too many followers can affect the analysis by not telling the specific area or topics candidate is interested in.
+Too less followers does not say at all about the candidate
 
 
 
@@ -55,3 +64,11 @@ https://dev.twitter.com/rest/reference/get/friends/ids, how many requests will
 we have to make? Given how Twitter does rate limiting
 (https://dev.twitter.com/rest/public/rate-limiting), approximately how many
 minutes will it take to collect this data?
+
+
+Answer) 
+DrJillStein.        : 1648 Requests. 1635 Minutes
+GovGaryJohnson	    : 3481 Requests. 3480 Minutes
+HillaryClinton	    : 762 Request. 750 Minutes
+realDonaldTrump.    : 45 Request. 30 Minutes
+Total Request:  5936 Requests. 5895 Minutes.

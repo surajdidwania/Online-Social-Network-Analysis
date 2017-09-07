@@ -235,7 +235,7 @@ def friend_overlap(users):
         pair_tuple = pair_tuple + (pairs[1]['screen_name'],)
         pair_tuple = pair_tuple + (len(common),)
         friends_overlap.append(pair_tuple)
-    return sorted(friends_overlap,key=lambda common: (-common[2]))
+    return sorted(friends_overlap,key=lambda common: (-common[2],common[0],common[1]))
 
 
 def followed_by_hillary_and_donald(users, twitter):
@@ -252,8 +252,10 @@ def followed_by_hillary_and_donald(users, twitter):
         A string containing the single Twitter screen_name of the user
         that is followed by both Hillary Clinton and Donald Trump.
     """
-    user_id = set(users[2]['friends']) & set(users[3]['friends'])
-    request = robust_request(twitter,'users/lookup', {'user_id':user_id},max_tries=5) 
+    screen_names = [user['screen_name'] for user in users]
+    if 'realDonaldTrump' or 'HillaryClinton' in screen_names:
+        user_id = set(users[screen_names.index('realDonaldTrump')]['friends']) & set(users[screen_names.index('HillaryClinton')]['friends'])
+        request = robust_request(twitter,'users/lookup', {'user_id':user_id},max_tries=5) 
     for r in request:
         return r['screen_name']
 
@@ -303,6 +305,7 @@ def draw_network(graph, users, filename):
             lab[nodes] = nodes
         else:
             lab[nodes] = ""
+    plt.figure(figsize=(15,15))
     nx.draw_networkx(graph,arrows=False,labels = lab,node_color = 'g',edge_color = 'r',width = 0.8,node_size = 20)
     plt.axis('off') 
     plt.savefig(filename)
