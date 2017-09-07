@@ -305,7 +305,7 @@ def draw_network(graph, users, filename):
             lab[nodes] = nodes
         else:
             lab[nodes] = ""
-    plt.figure(figsize=(25,25))
+    plt.figure(figsize=(15,15))
     nx.draw_networkx(graph,arrows=False,labels = lab,node_color = 'g',edge_color = 'r',width = 0.8,node_size = 20)
     plt.axis('off') 
     plt.savefig(filename)
