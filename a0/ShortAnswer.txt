@@ -64,5 +64,10 @@ we have to make? Given how Twitter does rate limiting
 minutes will it take to collect this data?
 
 
-Answer) 
+Answer)
+DrJillStein : 1648 Request
+GovGaryJohnson : 3481 Req
+HillaryClinton : 762 Req
+realDonaldTrump : 45 Req
+ 
 Total Request:  5936 Requests. 5925 Minutes.
