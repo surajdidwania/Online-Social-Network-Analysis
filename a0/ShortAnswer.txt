@@ -30,9 +30,7 @@ information.
 
 Answer) Friends followed by both Hillary Clinton and Donald Trump is WhiteHouse. It is common between them
 Because of the competition between them for common topic. 
-They both needs to get update in the form of notification, tweets 
-From common topic.
-
+They both needs to get update in the form of notification, tweets From common topic.
 
 
 
@@ -46,10 +44,10 @@ Johnson follows over 3K accounts, while Donald Trump follows less than
 Answer) Accounts which a candidate follows does say something about your character.
 Candidate who follows very less number of friends might be because candidate only wants information or reads about his close ones or chosen topic.
 And does not read about other opinions outside its near by person or topic. The tweets are focussed to some extent on his followers not who he follow.
-Candidate who follows many accounts shows that he is very focussed on taking opinions about other people or lots of people to notice them.
+Candidate who follows many accounts shows that he is very focussed on taking opinions about other people or lots of people to notice.
 
 Too many followers can affect the analysis by not telling the specific area or topics candidate is interested in.
-Too less followers does not say at all about the candidate
+Too less followers does not say at all about the candidate choices.
 
 
 
@@ -67,8 +65,4 @@ minutes will it take to collect this data?
 
 
 Answer) 
-DrJillStein.        : 1648 Requests. 1635 Minutes
-GovGaryJohnson	    : 3481 Requests. 3480 Minutes
-HillaryClinton	    : 762 Request. 750 Minutes
-realDonaldTrump.    : 45 Request. 30 Minutes
-Total Request:  5936 Requests. 5895 Minutes.
+Total Request:  5936 Requests. 5925 Minutes.
