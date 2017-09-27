@@ -74,8 +74,35 @@ def bfs(graph, root, max_depth):
     >>> sorted((node, sorted(parents)) for node, parents in node2parents.items())
     [('B', ['D']), ('D', ['E']), ('F', ['E']), ('G', ['D', 'F'])]
     """
-    ###TODO
-    pass
+    queue = deque()
+    queue.append(root) 
+    seen = set()
+    dist_from = {}
+    counter = {}
+    g=graph.copy()    
+    node2distances = defaultdict(int)
+    node2parents = defaultdict(list)
+    node2num_paths = defaultdict(int)
+    seen.add(root)
+    for s in g.nodes():
+        dist_from[s] = 0
+        counter[s]=0
+    node2distances[root] = (dist_from[root])
+    node2num_paths[root] = 1
+    while len(queue) > 0:
+        node = queue.popleft()
+        if dist_from[node] <= max_depth and node !=root:
+            node2distances[node]=(dist_from[node])
+            node2num_paths[node]=(counter[node])
+        for neighbornode in g.neighbors(node):
+            if dist_from[neighbornode] >= dist_from[node]+1 or dist_from[neighbornode] == 0 and neighbornode!=root and dist_from[node] < max_depth:
+                dist_from[neighbornode] = dist_from[node]+1
+                queue.append(neighbornode)
+                seen.add(neighbornode)
+                counter[neighbornode]+=1
+                if node not in node2parents[neighbornode]:
+                    node2parents[neighbornode].append(node)
+    return node2distances,node2num_paths,node2parents
 
 
 def complexity_of_bfs(V, E, K):
@@ -90,8 +117,7 @@ def complexity_of_bfs(V, E, K):
     >>> type(v) == int or type(v) == float
     True
     """
-    ###TODO
-    pass
+    return V+E
 
 
 def bottom_up(root, node2distances, node2num_paths, node2parents):
@@ -129,8 +155,26 @@ def bottom_up(root, node2distances, node2num_paths, node2parents):
     >>> sorted(result.items())
     [(('A', 'B'), 1.0), (('B', 'C'), 1.0), (('B', 'D'), 3.0), (('D', 'E'), 4.5), (('D', 'G'), 0.5), (('E', 'F'), 1.5), (('F', 'G'), 0.5)]
     """
-    ###TODO
-    pass
+    credit = dict()
+    edge = dict()
+    for nodes in node2distances:
+        credit[nodes] = 0
+    for node in sorted(node2distances,key=node2distances.get,reverse = True) or []:
+        if node != root:
+            neighbour = node2num_paths[node]
+            if neighbour==1:
+                parent = str(node2parents[node][0])
+                sortedtup = sorted((node,parent))
+                edge[sortedtup[0],sortedtup[1]] = (credit[node]+1.0)
+                credit[parent] = credit[parent]+edge[sortedtup[0],sortedtup[1]]
+            else:
+                for parent in node2parents[node]:
+                        sortedtup = sorted((node,parent))
+                        edge[sortedtup[0],sortedtup[1]] = (credit[node]+1.0)/node2num_paths[node]
+                        credit[parent] = credit[parent]+edge[sortedtup[0],sortedtup[1]]
+
+                
+    return edge
 
 
 def approximate_betweenness(graph, max_depth):
@@ -154,8 +198,14 @@ def approximate_betweenness(graph, max_depth):
     >>> sorted(approximate_betweenness(example_graph(), 2).items())
     [(('A', 'B'), 2.0), (('A', 'C'), 1.0), (('B', 'C'), 2.0), (('B', 'D'), 6.0), (('D', 'E'), 2.5), (('D', 'F'), 2.0), (('D', 'G'), 2.5), (('E', 'F'), 1.5), (('F', 'G'), 1.5)]
     """
-    ###TODO
-    pass
+    count = Counter()
+    for node in graph.nodes():
+        node2distances,node2num_paths,node2parents = bfs(graph, node, max_depth)
+        result = bottom_up(node, node2distances, node2num_paths, node2parents)
+        count.update(result)
+    for edges in count:
+        count[edges]=float(count[edges]/2)
+    return count
 
 
 def is_approximation_always_right():
@@ -175,8 +225,7 @@ def is_approximation_always_right():
     >>> type(s)
     <class 'str'>
     """
-    ###TODO
-    pass
+    return 'No'
 
 
 def partition_girvan_newman(graph, max_depth):
@@ -209,8 +258,19 @@ def partition_girvan_newman(graph, max_depth):
     >>> sorted(components[1].nodes())
     ['D', 'E', 'F', 'G']
     """
-    ###TODO
-    pass
+    graphcopy=graph.copy()
+    between=approximate_betweenness(graphcopy, max_depth)
+    betweenness = sorted(between.items(),key = lambda x:(-x[1],x[0]))
+    graphcopy.remove_edge(*betweenness[0][0])
+    components = [c for c in nx.connected_component_subgraphs(graphcopy)]
+    while len(components) ==1:
+        del between[betweenness[0][0]]
+        betweenness = sorted(between.items(),key = lambda x:(-x[1],x[0]))
+        graphcopy.remove_edge(*betweenness[0][0])
+        components = [c for c in nx.connected_component_subgraphs(graphcopy)]
+        components = sorted(components,key=lambda x: sorted(x.nodes())[0])
+    return components
+        
 
 def get_subgraph(graph, min_degree):
     """Return a subgraph containing nodes whose degree is
@@ -229,8 +289,11 @@ def get_subgraph(graph, min_degree):
     >>> len(subgraph.edges())
     2
     """
-    ###TODO
-    pass
+    graph_copy = graph.copy()
+    for nodes in graph.nodes():
+        if graph.degree(nodes) < min_degree:
+            graph_copy.remove_node(nodes)
+    return graph_copy
 
 
 """"
@@ -250,8 +313,14 @@ def volume(nodes, graph):
     >>> volume(['A', 'B', 'C'], example_graph())
     4
     """
-    ###TODO
-    pass
+    counter = 0
+    seen = set()
+    for node in nodes:
+        for edge in graph.edges():
+            if node in edge and edge not in seen:
+                seen.add(edge)
+                counter+=1
+    return counter
 
 
 def cut(S, T, graph):
@@ -269,8 +338,13 @@ def cut(S, T, graph):
     >>> cut(['A', 'B', 'C'], ['D', 'E', 'F', 'G'], example_graph())
     1
     """
-    ###TODO
-    pass
+    counter = 0
+    for edges in graph.edges():
+        if edges[0] in S and edges[1] in T :
+            counter+=1
+        elif edges[1] in S and edges[0] in T:
+            counter+=1
+    return counter
 
 
 def norm_cut(S, T, graph):
@@ -284,8 +358,11 @@ def norm_cut(S, T, graph):
       An float representing the normalized cut value
 
     """
-    ###TODO
-    pass
+    svolume = volume(S, graph)
+    tvolume = volume(T, graph)
+    cutset = cut(S,T,graph)
+    norm_cut = (cutset/svolume) + (cutset/tvolume)
+    return norm_cut
 
 
 def score_max_depths(graph, max_depths):
@@ -305,9 +382,12 @@ def score_max_depths(graph, max_depths):
       norm_cut value obtained by the partitions returned by
       partition_girvan_newman. See Log.txt for an example.
     """
-    ###TODO
-    pass
-
+    norm_cutvalues = []
+    for depth in max_depths:
+        graph_component = partition_girvan_newman(graph, depth)
+        cutvalues = (depth, norm_cut(graph_component[0].nodes(), graph_component[1].nodes(), graph))
+        norm_cutvalues.append(cutvalues)
+    return norm_cutvalues
 
 ## Link prediction
 
@@ -343,8 +423,13 @@ def make_training_graph(graph, test_node, n):
     >>> sorted(train_graph.neighbors('D'))
     ['F', 'G']
     """
-    ###TODO
-    pass
+    graph_copy = graph.copy()
+    edge = sorted(graph_copy.neighbors(test_node))
+    for node in edge:
+        if n>0:
+            graph_copy.remove_edge(node,test_node)
+            n-=1
+    return graph_copy
 
 
 
@@ -374,8 +459,15 @@ def jaccard(graph, node, k):
     >>> jaccard(train_graph, 'D', 2)
     [(('D', 'E'), 0.5), (('D', 'A'), 0.0)]
     """
-    ###TODO
-    pass
+    graph_copy = graph.copy()
+    neighbors = set(graph.neighbors(node))
+    scores = []
+    for nodes in graph.nodes():
+        neighbors2 = set(graph.neighbors(nodes))
+        if nodes not in neighbors and nodes!=node:
+            scores.append(((node,nodes), len(neighbors & neighbors2) /
+                          len(neighbors | neighbors2)))
+    return sorted(scores, key=lambda x: x[1], reverse=True)[:k]
 
 
 # One limitation of Jaccard is that it only has non-zero values for nodes two hops away.
@@ -422,8 +514,16 @@ def path_score(graph, root, k, beta):
     >>> path_score(train_graph, 'D', k=4, beta=.5)
     [(('D', 'F'), 0.5), (('D', 'A'), 0.25), (('D', 'C'), 0.25)]
     """
-    ###TODO
-    pass
+    similarity = []
+    node2distances,node2num_paths,node2parents = bfs(graph, root, math.inf)
+    for node in graph.nodes():
+        exponential_value = 0.0
+        total_value = 0.0
+        if node != root and not graph.has_edge(root,node) and not graph.has_edge(node,root):
+            exponential_value = math.pow(beta,node2distances[node])
+            total_value = exponential_value* node2num_paths[node]
+            similarity.append(((root,node),total_value))
+    return sorted(similarity, key=lambda x: x[1], reverse=True)[:k]
 
 
 def evaluate(predicted_edges, graph):
@@ -444,8 +544,12 @@ def evaluate(predicted_edges, graph):
     >>> evaluate([('D', 'E'), ('D', 'A')], example_graph())
     0.5
     """
-    ###TODO
-    pass
+    counter=0
+    for predict_edge in predicted_edges:
+        if graph.has_edge(predict_edge[0],predict_edge[1]) or graph.has_edge(predict_edge[1],predict_edge[0]):
+            counter+=1
+    pred_len = len(predicted_edges)
+    return counter/pred_len
 
 
 """
