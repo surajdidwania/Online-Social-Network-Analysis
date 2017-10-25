@@ -262,23 +262,20 @@ def vectorize(tokens_list, feature_fns, min_freq, vocab=None):
     ###TODO
     pass
     result = []
-    unsortedvocab = {}
+    vocabulary = {}
     count = defaultdict(int)
     indptr = [0]
     indices = []
     data = []
-    vocabulary = {}
     for tokens in tokens_list:
         feature_val = featurize(tokens,feature_fns)
         result.append(feature_val)
         for res in feature_val:
             count[res[0]]+=1
-            unsortedvocab.setdefault(res[0], len(unsortedvocab)) 
+            vocabulary.setdefault(res[0], len(vocabulary)) 
     if vocab == None:
         vocab = {}
-        for element in sorted(unsortedvocab):
-            if element in count and count[element]>=min_freq:  
-                 vocab.setdefault(element,len(vocab))
+        [vocab.setdefault(element,len(vocab)) for element in sorted(vocabulary) if element in count and count[element]>=min_freq]        
     for f in result:
         for term in f:
             if term[0] in vocab:
@@ -370,17 +367,17 @@ def eval_all_combinations(docs, labels, punct_vals,
     pass
     combine = []
     result = []
-    newcmlist=[]
+    combinationlist=[]
     finallist = []   
     for L in range(1, len(feature_fns)+1):
         comblist = [list(subset) for subset in combinations(feature_fns, L)]
         combine.append(comblist)
     for val in combine:
               for s in val:    
-                        newcmlist.append(s)
+                        combinationlist.append(s)
     for punct in punct_vals:
         tokens_list = [tokenize(d,punct) for d in docs]
-        for s in newcmlist:
+        for s in combinationlist:
             for freq in min_freqs:
                 clf = LogisticRegression()
                 X, vocab = vectorize(tokens_list,s,freq)
@@ -410,7 +407,6 @@ def plot_sorted_accuracies(results):
     plt.ylabel('accuracies')
     plt.xlabel('Feature Functions')
     plt.plot(acc)
-    plt.show()
     plt.savefig('accuracies.png')
 
 
@@ -443,21 +439,22 @@ def mean_accuracy_per_setting(results):
         countinternal_punct[result['punct']] = countinternal_punct[result['punct']] +1
         featfreq[result['features']] = result['accuracy'] + featfreq[result['features']]
         countfeatfreq[result['features']] = countfeatfreq[result['features']] +1
-        
-    for element in freq:
-        finalresult.append([freq[element]/countfreq[element],"min_freq="+str(element)])
-    for element in internal_punct:
-        finalresult.append([internal_punct[element]/countinternal_punct[element],"punct="+str(element)])
+    
     for element in featfreq:
         stringele = ""
         for ele in element:
             if stringele=="":
                 stringele = ele.__name__
             else:
-                stringele = stringele +" "+ ele.__name__ 
+                stringele = stringele +" "+ ele.__name__
         finalresult.append([featfreq[element]/countfeatfreq[element],"features="+stringele])
+    for element in freq:
+        finalresult.append([freq[element]/countfreq[element],"min_freq="+str(element)])
+    for element in internal_punct:
+        finalresult.append([internal_punct[element]/countinternal_punct[element],"punct="+str(element)]) 
     
     return sorted(finalresult, key=lambda k: -k[0])
+    
 
 
 
