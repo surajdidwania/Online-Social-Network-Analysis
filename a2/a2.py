@@ -96,7 +96,14 @@ def tokenize(doc, keep_internal_punct=False):
     ###TODO
     pass
     if keep_internal_punct==True:
-        x = re.sub(r'(?<!\S)[^\s\w]+|[^\s\w]+(?!\S)',' ',doc.lower()).split()
+        #x = re.sub(r'(?<!\S)[^\s\w]+|[^\s\w]+(?!\S)',' ',doc.lower()).split()
+        x=[]
+        str = doc.lower()
+        str1 = string.punctuation
+        str2 = str1.replace("_","")
+        for exp in str.split():
+            if (exp.strip(str2)):
+                x.append(exp.strip(str2))
     else:
         x = re.sub('\W+', ' ', doc).lower().split()
     return np.array(x)
@@ -388,7 +395,7 @@ def eval_all_combinations(docs, labels, punct_vals,
                 finaldict.update({'min_freq':freq})       
                 finaldict.update({'features':tuple(s)})     
                 finallist.append(finaldict)   
-    value = sorted(finallist, key=lambda k: -k['accuracy'])
+    value = sorted(finallist, key=lambda k: (-k['accuracy'],-k['min_freq']))
     return value  
 
 
