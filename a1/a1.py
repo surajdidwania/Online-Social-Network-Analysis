@@ -159,19 +159,20 @@ def bottom_up(root, node2distances, node2num_paths, node2parents):
     edge = dict()
     for nodes in node2distances:
         credit[nodes] = 0
-    for node in sorted(node2distances,key=node2distances.get,reverse = True) or []:
+    allnodes = sorted(node2distances,key=node2distances.get,reverse = True)
+    for node in allnodes or []:
         if node != root:
             neighbour = node2num_paths[node]
             if neighbour==1:
                 parent = str(node2parents[node][0])
-                sortedtup = sorted((node,parent))
-                edge[sortedtup[0],sortedtup[1]] = (credit[node]+1.0)
-                credit[parent] = credit[parent]+edge[sortedtup[0],sortedtup[1]]
+                edgetup = sorted((node,parent))
+                edge[edgetup[0],edgetup[1]] = (credit[node]+1.0)
+                credit[parent] = credit[parent]+edge[edgetup[0],edgetup[1]]
             else:
-                for parent in node2parents[node]:
-                        sortedtup = sorted((node,parent))
-                        edge[sortedtup[0],sortedtup[1]] = (credit[node]+1.0)/node2num_paths[node]
-                        credit[parent] = credit[parent]+edge[sortedtup[0],sortedtup[1]]
+                for parents in node2parents[node]:
+                        edgetup = sorted((node,parents))
+                        edge[edgetup[0],edgetup[1]] = (credit[node]+1.0)/node2num_paths[node]
+                        credit[parents] = credit[parents]+edge[edgetup[0],edgetup[1]]
 
                 
     return edge
