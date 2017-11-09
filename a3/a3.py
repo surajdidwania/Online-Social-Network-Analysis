@@ -96,7 +96,7 @@ def featurize(movies):
     document = 0
     for values in features:
         max_k[document]=0
-        for value in values:
+        for value in set(values):
             num_features.append(value)
             if (value,document) not in tf:
                 df[value]+=1
