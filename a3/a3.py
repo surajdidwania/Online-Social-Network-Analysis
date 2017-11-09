@@ -52,7 +52,12 @@ def tokenize(movies):
     [['horror', 'romance'], ['sci-fi']]
     """
     ###TODO
-    pass
+    tokens=[]
+    for token in movies['genres']:
+       v = tokenize_string(token)
+       tokens.append(v)
+    movies['tokens']=tokens
+    return movies
 
 
 def featurize(movies):
@@ -78,7 +83,45 @@ def featurize(movies):
       - The vocab, a dict from term to int. Make sure the vocab is sorted alphabetically as in a2 (e.g., {'aardvark': 0, 'boy': 1, ...})
     """
     ###TODO
-    pass
+    unsortedvocab = defaultdict(int)
+    features = movies['tokens'].tolist()
+    max_k = {}
+    vocab =defaultdict(int) 
+    tf = defaultdict(int)
+    df = defaultdict(int)
+    tfidf = {}
+    num_features=[]
+    csr_matrixlist= [] 
+    doc = 0
+    document = 0
+    for values in features:
+        max_k[document]=0
+        for value in set(values):
+            num_features.append(value)
+            if (value,document) not in tf:
+                df[value]+=1
+            tf[(value,document)]+=1
+        max_k[document]=np.max(tf[value,document])
+        document+=1
+        
+    documentcount = len(features)
+    for val in sorted(set(num_features)):
+        vocab[val]=len(vocab)
+    for values in features:
+        indptr = []
+        indices = []
+        data = []
+        for value in values:
+            if value in vocab:
+                tfidf[(value,doc)] = (tf[(value,doc)]/max_k[doc]) * math.log10(documentcount/df[value])
+                data.append(tfidf[(value,doc)])
+                indptr.append(0)
+                indices.append(vocab[value])
+        matrix=csr_matrix((data, (indptr, indices)),shape = (1,len(vocab)))
+        csr_matrixlist.append(matrix)
+        doc+=1
+    movies['features'] = csr_matrixlist
+    return tuple((movies,vocab))
 
 
 def train_test_split(ratings):
@@ -103,7 +146,11 @@ def cosine_sim(a, b):
       where ||a|| indicates the Euclidean norm (aka L2 norm) of vector a.
     """
     ###TODO
-    pass
+    dotproduct = np.dot(a,np.transpose(b)).sum()
+    x = (a.data*a.data)
+    y = (b.data*b.data)
+    normalise = math.sqrt(x.sum())*math.sqrt(y.sum())
+    return (dotproduct/normalise)
 
 
 def make_predictions(movies, ratings_train, ratings_test):
@@ -129,7 +176,30 @@ def make_predictions(movies, ratings_train, ratings_test):
       A numpy array containing one predicted rating for each element of ratings_test.
     """
     ###TODO
-    pass
+    listedrating = []
+    for index,rows in ratings_test.iterrows():
+        total = 0
+        totalcount=0
+        flag=0
+        ratingcol = []
+        test_movie = rows['movieId']
+        test_user = rows['userId']
+        data = movies.loc[movies['movieId']==int(test_movie)]
+        a = data['features'].values[0]
+        df = ratings_train.loc[(ratings_train['userId']==int(test_user)) &(ratings_train['movieId']!=test_movie)]
+        for ind,row in df.iterrows():
+                ratingcol.append(row['rating'])
+                train_data = movies.loc[movies['movieId']==int(row['movieId'])]
+                b = train_data['features'].values[0]
+                cosineval = cosine_sim(a,b)
+                if cosineval>0:
+                    total+=cosineval
+                    totalcount+=(cosineval*row['rating'])
+        if total>0:
+            listedrating.append(totalcount/total)
+        else:
+            listedrating.append(np.mean(ratingcol))
+    return (listedrating)
 
 
 def mean_absolute_error(predictions, ratings_test):
