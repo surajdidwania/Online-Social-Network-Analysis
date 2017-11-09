@@ -90,13 +90,14 @@ def featurize(movies):
     tf = defaultdict(int)
     df = defaultdict(int)
     tfidf = {}
-    rows= [] 
+    num_features=[]
+    csr_matrixlist= [] 
     doc = 0
     document = 0
     for values in features:
         max_k[document]=0
         for value in values:
-            unsortedvocab[value]=len(unsortedvocab)
+            num_features.append(value)
             if (value,document) not in tf:
                 df[value]+=1
             tf[(value,document)]+=1
@@ -104,7 +105,7 @@ def featurize(movies):
         document+=1
         
     documentcount = len(features)
-    for val in sorted(unsortedvocab):
+    for val in sorted(set(num_features)):
         vocab[val]=len(vocab)
     for values in features:
         indptr = []
@@ -112,15 +113,15 @@ def featurize(movies):
         data = []
         for value in values:
             if value in vocab:
-                indices.append(vocab[value])
                 tfidf[(value,doc)] = (tf[(value,doc)]/max_k[doc]) * math.log10(documentcount/df[value])
                 data.append(tfidf[(value,doc)])
                 indptr.append(0)
+                indices.append(vocab[value])
         matrix=csr_matrix((data, (indptr, indices)),shape = (1,len(vocab)))
-        rows.append(matrix)
+        csr_matrixlist.append(matrix)
         doc+=1
-    movies['features'] = rows
-    return (movies,vocab)
+    movies['features'] = csr_matrixlist
+    return tuple((movies,vocab))
 
 
 def train_test_split(ratings):
@@ -179,22 +180,24 @@ def make_predictions(movies, ratings_train, ratings_test):
         totalcount=0
         flag=0
         ratingcol = []
-        data = movies.loc[movies['movieId']==int(rows['movieId'])]
-        df = ratings_train.loc[ratings_train['userId']==int(rows['userId'])]
+        test_movie = rows['movieId']
+        test_user = rows['userId']
+        data = movies.loc[movies['movieId']==int(test_movie)]
+        a = data['features'].values[0]
+        df = ratings_train.loc[(ratings_train['userId']==int(test_user)) &(ratings_train['movieId']!=test_movie)]
         for ind,row in df.iterrows():
-            if row['movieId']!=rows['movieId']:
                 ratingcol.append(row['rating'])
                 train_data = movies.loc[movies['movieId']==int(row['movieId'])]
-                cosineval = cosine_sim(train_data['features'].iloc[0],data['features'].iloc[0])
+                b = train_data['features'].values[0]
+                cosineval = cosine_sim(a,b)
                 if cosineval>0:
                     total+=cosineval
                     totalcount+=(cosineval*row['rating'])
-                    flag=1
-        if flag==1:
-            listedrating.append((totalcount/total))
+        if total>0:
+            listedrating.append(totalcount/total)
         else:
             listedrating.append(np.mean(ratingcol))
-    return np.asarray(listedrating)
+    return (listedrating)
 
 
 def mean_absolute_error(predictions, ratings_test):
