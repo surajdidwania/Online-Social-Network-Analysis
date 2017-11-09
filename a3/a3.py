@@ -146,7 +146,7 @@ def cosine_sim(a, b):
       where ||a|| indicates the Euclidean norm (aka L2 norm) of vector a.
     """
     ###TODO
- dotproduct = np.dot(a,np.transpose(b)).sum()
+    dotproduct = np.dot(a,np.transpose(b)).sum()
     x = (a.data*a.data)
     y = (b.data*b.data)
     normalise = math.sqrt(x.sum())*math.sqrt(y.sum())
