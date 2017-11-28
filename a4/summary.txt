@@ -1,0 +1,18 @@
+Number of users collected: 305
+Number of messages collected: 301
+Number of communities discovered: 4
+Average number of users per community: 76.25
+Number of instances per class found: 
+ 	Male :276
+ 	Female :22
+Example from Male class: 
+ 	Name: Rach
+ 	Screen Name: norwegianbabe10
+	Description: I'd rather be hated for who I am, than loved for who I'm not... :)
+	Gender: male
+Example from Female class: 
+ 	Name: Suzi
+ 	Screen Name: lilsuzi89
+	Description: Proud inuk from Greenland 🇬🇱 
+💋💑💝💖
+	Gender: female

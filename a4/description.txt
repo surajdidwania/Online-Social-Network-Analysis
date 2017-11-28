@@ -1,0 +1,23 @@
+Gender classification and community prediction of twitter followers of 4 automobile giant i.e. Honda, Hyundai, Ford, Toyota
+
+I have also collected male and female first names from the census.gov url.
+
+1) collect
+Code: collect.py
+Input : twitter data
+I have collected 200 followers of each of the automobile giant (Honda, Hyundai, Ford, Toyota). The followers whose description is empty has been removed from the followers list as we cannot classify gender with empty description. Follower details with the description, name and screen name have been posted into the .pkl file. Male names and female names collected from the census data.
+Output: users.pkl, friendlist.pkl, followerdetails.pkl, malenames.pkl,femalenames.pkl
+Number of users collected: 312 
+
+2) cluster
+Code: cluster.py
+Input : users.pkl, friendlist.pkl
+Cluster analysis has been peroformed on the collected dataset by partition girvan_newman algorithm by removing the edges with betweeness. Each node in the graph represents the followers of this automobile giant. Before and after network graph depicts the community of the 4 users. I have observed the 4 clusters in the end and Average number of users per community: 78.0.
+Output : graph.pkl
+
+3) Classify.py
+Input : users.pkl, friendlist.pkl, followerdetails.pkl, malenames.pkl,femalenames.pkl
+Initial dataset has been performed as per Male and Female users. All the users and followers have been labelled with the male or female. The model was trained  Logistic Regression for various settings by getting the best evaluation combinations such as punct_vals(True, False), feature_fns(token_features, token_pair_features), min_freqs(2,5,10). Accuracy was calculated for each model. Best setting is used to train the model and is to predict the followers which not has been classified by the census data. All the followers whose gender was unknown was predicted according to description of the user. In the summary.txt, all the details was shown. 
+Output : followerdetails.pkl, best_result,worst_result
+
+As per the summary.txt, it was shown that 7-10% of the followers are female.The constraint in the project is only 200 followers was taken into consideration and all the nodes with no description was eliminated. As per the analysis, more number of followers, number of female followers will increase and this will lead to targeting of female followers can be checked. Marketers can target male users and can get profit out of it.
